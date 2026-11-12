@@ -27,6 +27,8 @@ interface UserDetail {
   status: string;
   createdAt: string;
   identities: Array<{ provider: string; email: string | null; createdAt: string }>;
+  /** Null unless the console counts this user as an admin. */
+  adminAuth: { passwordSet: boolean; authenticatorEnrolled: boolean } | null;
   memberships: Array<{ orgId: string; org: string; capability: string; role: string; roleKey: string; permissions: string[] }>;
   activity: AuditRow[];
 }
@@ -65,6 +67,42 @@ function StatusAction({ user }: { user: UserDetail }) {
       }
     >
       {suspend ? t.userSuspendEllipsis : t.userReactivateEllipsis}
+    </Button>
+  );
+}
+
+/** For another admin who lost their authenticator; your own needs someone else, or the script. */
+function ResetAuthenticatorAction({ user }: { user: UserDetail }) {
+  const { modal, message } = App.useApp();
+  const t = useT();
+  const { email } = useAuth();
+  const qc = useQueryClient();
+  const mutation = useMutation({
+    mutationFn: () => api.post<{ id: string }>(`/admin/users/${user.id}/admin-auth/reset-authenticator`),
+    onSuccess: () => {
+      message.success(t.userResetAuthDone(who(user)));
+      qc.invalidateQueries({ queryKey: ['user', user.id] });
+    },
+    onError: (e) => message.error((e as Error).message),
+  });
+
+  if (!user.adminAuth || (user.email && user.email === email)) return null;
+
+  return (
+    <Button
+      danger
+      loading={mutation.isPending}
+      onClick={() =>
+        modal.confirm({
+          title: t.userResetAuthQ(who(user)),
+          content: t.userResetAuthBody,
+          okText: t.userResetAuth,
+          okButtonProps: { danger: true },
+          onOk: () => mutation.mutateAsync(),
+        })
+      }
+    >
+      {t.userResetAuthEllipsis}
     </Button>
   );
 }
@@ -162,7 +200,14 @@ export default function Users() {
         open={!!openId}
         onClose={() => setOpenId(undefined)}
         loading={detail.isLoading}
-        extra={d && <StatusAction user={d} />}
+        extra={
+          d && (
+            <Space>
+              <ResetAuthenticatorAction user={d} />
+              <StatusAction user={d} />
+            </Space>
+          )
+        }
         styles={{ body: { overscrollBehavior: 'contain' } }}
       >
         {detail.error && <Alert type="error" message={(detail.error as Error).message} showIcon />}
@@ -177,6 +222,18 @@ export default function Users() {
               <Descriptions.Item label={t.colMobile}>
                 <span translate="no">{d.phone ?? '—'}</span>
               </Descriptions.Item>
+              {d.adminAuth && (
+                <Descriptions.Item label={t.userAdminSignIn} span={2}>
+                  <Space size={4} wrap>
+                    <Tag color={d.adminAuth.passwordSet ? 'green' : 'default'}>
+                      {d.adminAuth.passwordSet ? t.userPasswordSet : t.userNoPassword}
+                    </Tag>
+                    <Tag color={d.adminAuth.authenticatorEnrolled ? 'green' : 'default'}>
+                      {d.adminAuth.authenticatorEnrolled ? t.userAuthEnrolled : t.userNoAuth}
+                    </Tag>
+                  </Space>
+                </Descriptions.Item>
+              )}
             </Descriptions>
             <Tabs
               items={[

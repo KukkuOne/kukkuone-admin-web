@@ -37,6 +37,17 @@ export const en = {
   userReactivate: 'Reactivate',
   userSuspendEllipsis: 'Suspend…',
   userReactivateEllipsis: 'Reactivate…',
+  userAdminSignIn: 'Admin sign-in',
+  userPasswordSet: 'Password set',
+  userNoPassword: 'No password yet',
+  userAuthEnrolled: 'Authenticator set up',
+  userNoAuth: 'No authenticator yet',
+  userResetAuthEllipsis: 'Reset authenticator…',
+  userResetAuthQ: (name: string) => `Reset ${name}’s authenticator?`,
+  userResetAuthBody:
+    'Their current authenticator codes stop working and they are signed out of the admin console everywhere. At their next sign-in with email and password they scan a new QR code. Recorded in the audit log.',
+  userResetAuth: 'Reset authenticator',
+  userResetAuthDone: (name: string) => `${name} will set up a new authenticator at their next sign-in`,
 };
 
 export const te: typeof en = {
@@ -75,4 +86,15 @@ export const te: typeof en = {
   userReactivate: 'మళ్లీ ప్రారంభించండి',
   userSuspendEllipsis: 'నిలిపివేయండి…',
   userReactivateEllipsis: 'మళ్లీ ప్రారంభించండి…',
+  userAdminSignIn: 'అడ్మిన్ సైన్ ఇన్',
+  userPasswordSet: 'పాస్‌వర్డ్ ఉంది',
+  userNoPassword: 'ఇంకా పాస్‌వర్డ్ లేదు',
+  userAuthEnrolled: 'ఆథెంటికేటర్ సెటప్ అయింది',
+  userNoAuth: 'ఇంకా ఆథెంటికేటర్ లేదు',
+  userResetAuthEllipsis: 'ఆథెంటికేటర్ రీసెట్ చేయండి…',
+  userResetAuthQ: (name) => `${name} ఆథెంటికేటర్‌ను రీసెట్ చేయాలా?`,
+  userResetAuthBody:
+    'వారి ప్రస్తుత ఆథెంటికేటర్ కోడ్‌లు పనిచేయవు, అన్ని చోట్లా అడ్మిన్ కన్సోల్ నుండి సైన్ అవుట్ అవుతారు. తదుపరి సారి ఈమెయిల్, పాస్‌వర్డ్‌తో సైన్ ఇన్ చేసినప్పుడు కొత్త QR కోడ్‌ను స్కాన్ చేస్తారు. ఇది ఆడిట్ లాగ్‌లో నమోదవుతుంది.',
+  userResetAuth: 'ఆథెంటికేటర్ రీసెట్ చేయండి',
+  userResetAuthDone: (name) => `${name} తదుపరి సైన్ ఇన్‌లో కొత్త ఆథెంటికేటర్‌ను సెటప్ చేస్తారు`,
 };
