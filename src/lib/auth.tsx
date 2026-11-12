@@ -1,61 +1,60 @@
+import { useQueryClient } from '@tanstack/react-query';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { clearAdminEmail, getAdminEmail, setAdminEmail } from './api';
-import { firebaseEnabled, firebaseSignOut, onFirebaseAuth, signInWithGoogle } from './firebase';
-
-type AuthMode = 'dev' | 'firebase';
+import { setOnUnauthorized } from './api';
+import { adminSession, forgetAdminSession, keepAdminSession, type Staff } from './session';
 
 interface AuthState {
   email: string | null;
-  mode: AuthMode;
-  /** Dev mode: pass the email to sign in. Firebase mode: no arg — starts Google sign-in. */
-  login: (email?: string) => void | Promise<void>;
-  logout: () => void | Promise<void>;
+  name: string | null;
+  /** Set when the console was signed out by an expired or refused session, for the sign-in notice. */
+  ended: boolean;
+  signIn: (token: string, expiresAt: string, staff: Staff) => void;
+  logout: () => void;
 }
 
 const AuthContext = createContext<AuthState>({
   email: null,
-  mode: 'dev',
-  login: () => {},
+  name: null,
+  ended: false,
+  signIn: () => {},
   logout: () => {},
 });
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [email, setEmail] = useState<string | null>(firebaseEnabled ? null : getAdminEmail());
+  const [who, setWho] = useState(() => adminSession());
+  const [ended, setEnded] = useState(false);
+  const queryClient = useQueryClient();
 
-  // Firebase mode: reflect the Firebase user's email in state.
   useEffect(() => {
-    if (!firebaseEnabled) return;
-    const unsub = onFirebaseAuth((e) => setEmail(e));
-    return unsub;
-  }, []);
+    setOnUnauthorized(() => {
+      forgetAdminSession();
+      setWho((prev) => {
+        if (prev) setEnded(true);
+        return null;
+      });
+      queryClient.clear();
+    });
+  }, [queryClient]);
 
-  const value = useMemo<AuthState>(() => {
-    if (firebaseEnabled) {
-      return {
-        email,
-        mode: 'firebase',
-        login: async () => {
-          await signInWithGoogle();
-        },
-        logout: async () => {
-          await firebaseSignOut();
-        },
-      };
-    }
-    return {
-      email,
-      mode: 'dev',
-      login: (e?: string) => {
-        if (!e) return;
-        setAdminEmail(e);
-        setEmail(e.trim().toLowerCase());
+  const value = useMemo<AuthState>(
+    () => ({
+      email: who?.email ?? null,
+      name: who?.name ?? null,
+      ended,
+      signIn: (token, expiresAt, staff) => {
+        keepAdminSession(token, expiresAt, staff);
+        setEnded(false);
+        setWho(adminSession());
       },
       logout: () => {
-        clearAdminEmail();
-        setEmail(null);
+        forgetAdminSession();
+        queryClient.clear();
+        setEnded(false);
+        setWho(null);
       },
-    };
-  }, [email]);
+    }),
+    [who, ended, queryClient],
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

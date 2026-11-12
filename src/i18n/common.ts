@@ -1,7 +1,5 @@
-import type { ReactNode } from 'react';
-
 /**
- * The shell, sign-in, generic words, the column words every table shares, and
+ * The shell, generic words, the column words every table shares, and
  * the labels for API enum values. Telugu taken from
  * kukkuone-farmer-mobile/lib/l10n/app_te.arb wherever the app already says the
  * same thing. Enum maps translate what is shown only — the value sent back to
@@ -12,13 +10,6 @@ export const en = {
   appName: 'KukkuOne Admin',
   consoleTagline: 'Platform owner console',
   docTitle: (page: string) => `${page} · KukkuOne Admin`,
-
-  // ---- sign-in ----
-  signInWithGoogle: 'Sign in with Google',
-  devEmailLabel: 'Email (dev sign-in)',
-  devEmailInvalid: 'Enter a valid email',
-  devEnter: 'Enter',
-  devHint: (email: ReactNode): ReactNode[] => ['Use ', email, ' for full access. Other emails will be denied by the admin API.'],
 
   // ---- shell ----
   platformAdmin: 'Platform Admin',
@@ -139,12 +130,6 @@ export const te: typeof en = {
   appName: 'KukkuOne అడ్మిన్',
   consoleTagline: 'ప్లాట్‌ఫామ్ యజమాని కన్సోల్',
   docTitle: (page) => `${page} · KukkuOne అడ్మిన్`,
-
-  signInWithGoogle: 'Google తో సైన్ ఇన్',
-  devEmailLabel: 'ఈమెయిల్ (డెవ్ సైన్ ఇన్)',
-  devEmailInvalid: 'సరైన ఈమెయిల్ నమోదు చేయండి',
-  devEnter: 'ప్రవేశించండి',
-  devHint: (email) => ['పూర్తి అనుమతి కోసం ', email, ' వాడండి. ఇతర ఈమెయిల్‌లను అడ్మిన్ API నిరాకరిస్తుంది.'],
 
   platformAdmin: 'ప్లాట్‌ఫామ్ అడ్మిన్',
   superAdmin: 'సూపర్ అడ్మిన్',

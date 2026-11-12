@@ -1,0 +1,138 @@
+/**
+ * Sign-in, setting a password, and asking for a link. Keys are prefixed
+ * `auth…`, `pw…` and `fp…`. Error strings are keyed by the gateway's error
+ * code, so a server message in English never reaches a Telugu reader.
+ */
+export const en = {
+  authTitle: 'Admin sign in',
+  authLead: 'Work email and password, then a code from your authenticator app.',
+  authEmail: 'Work email',
+  authEmailPlaceholder: 'you@company.com…',
+  authEmailRequired: 'Enter your work email',
+  authEmailInvalid: 'Enter a valid email',
+  authPassword: 'Password',
+  authPasswordRequired: 'Enter your password',
+  authContinue: 'Continue',
+  authForgot: 'Forgot password, or setting one for the first time?',
+  authChangeEmail: (email: string) => `Use a different email (${email})`,
+  authEnterCode: 'Enter your code',
+  authSetUp: 'Set up your authenticator',
+  authCodeLead: 'Open your authenticator app and enter the 6-digit code for KukkuOne Admin.',
+  authEnrolLead:
+    'First sign-in: set up an authenticator app by scanning this QR code, then enter the 6-digit code it shows.',
+  authNoApp:
+    'Don’t have an authenticator app yet? Install a time-based authenticator app, then scan this code or enter the setup key below.',
+  authQrLabel: 'QR code to add KukkuOne Admin to your authenticator app',
+  authCantScan: 'Can’t scan? Enter a key instead',
+  authCantAccess: 'Can’t access your authenticator?',
+  authCantAccessBody:
+    'Authenticator setup is offered on first sign-in only. If you’ve lost access to yours, ask the platform owner to reset it. This step can’t be skipped.',
+  authCode: '6-digit code',
+  authCodeInvalid: 'Enter the 6-digit code from your authenticator app',
+  authVerify: 'Verify and sign in',
+  authSessionEnded: 'Your session ended. Sign in again to carry on.',
+  authErrors: {
+    AUTH_INVALID: 'Email or password is incorrect.',
+    ACCOUNT_LOCKED: 'Too many failed tries. Try again in 15 minutes.',
+    RATE_LIMITED: 'Too many attempts. Wait a while and try again.',
+    CHALLENGE_EXPIRED: 'That sign-in expired. Start again.',
+    TOTP_INVALID: 'That code is not correct.',
+    CODE_REUSED: 'That code was already used. Wait for the next one.',
+    PASSWORD_WEAK: 'Use at least 12 characters',
+  } as Record<string, string>,
+  authFailed: 'That did not go through. Try again in a moment.',
+
+  pwTitle: 'Set your password',
+  pwChecking: 'Checking your link…',
+  pwExpiredTitle: 'This link has expired',
+  pwExpiredLead: 'Links work once and last 48 hours. Ask for a new one and we’ll email it to you.',
+  pwEmailNew: 'Email me a new link',
+  pwDoneTitle: 'Password set',
+  pwDoneLead: (email: string, welcome: boolean) =>
+    `Sign in with ${email} and your new password.${welcome ? ' You’ll set up an authenticator app next.' : ''}`,
+  pwGoSignIn: 'Go to sign in',
+  pwWelcomeTitle: 'Welcome to KukkuOne Admin',
+  pwResetTitle: 'Set a new password',
+  pwLead: (email: string) => `For ${email}. Use at least 12 characters; a few words strung together works well.`,
+  pwNew: 'New password',
+  pwAgain: 'Type it again',
+  pwMin: 'Use at least 12 characters',
+  pwMax: 'Use at most 200 characters',
+  pwMismatch: 'The passwords do not match',
+  pwSubmit: 'Set password',
+
+  fpTitle: 'Set or reset your password',
+  fpLead: 'Enter your work email and we’ll send you a link.',
+  fpSubmit: 'Email me a link',
+  fpBack: 'Back to sign in',
+  fpSentTitle: 'Check your email',
+  fpSentLead: (email: string) =>
+    `If ${email} has a KukkuOne admin account, a link to set your password is on its way. It works once and lasts 48 hours.`,
+};
+
+export const te: typeof en = {
+  authTitle: 'అడ్మిన్ సైన్ ఇన్',
+  authLead: 'ఆఫీసు ఈమెయిల్, పాస్‌వర్డ్, తర్వాత మీ ఆథెంటికేటర్ యాప్‌లోని కోడ్.',
+  authEmail: 'ఆఫీసు ఈమెయిల్',
+  authEmailPlaceholder: 'you@company.com…',
+  authEmailRequired: 'మీ ఆఫీసు ఈమెయిల్ నమోదు చేయండి',
+  authEmailInvalid: 'సరైన ఈమెయిల్ నమోదు చేయండి',
+  authPassword: 'పాస్‌వర్డ్',
+  authPasswordRequired: 'మీ పాస్‌వర్డ్ నమోదు చేయండి',
+  authContinue: 'కొనసాగించండి',
+  authForgot: 'పాస్‌వర్డ్ మర్చిపోయారా, లేదా మొదటిసారి పెట్టుకుంటున్నారా?',
+  authChangeEmail: (email) => `వేరే ఈమెయిల్ వాడండి (${email})`,
+  authEnterCode: 'మీ కోడ్ నమోదు చేయండి',
+  authSetUp: 'మీ ఆథెంటికేటర్‌ను సెటప్ చేయండి',
+  authCodeLead: 'మీ ఆథెంటికేటర్ యాప్ తెరిచి KukkuOne Admin కోసం 6 అంకెల కోడ్ నమోదు చేయండి.',
+  authEnrolLead:
+    'మొదటి సైన్ ఇన్: ఈ QR కోడ్‌ను స్కాన్ చేసి ఆథెంటికేటర్ యాప్‌ను సెటప్ చేయండి, తర్వాత అది చూపే 6 అంకెల కోడ్ నమోదు చేయండి.',
+  authNoApp:
+    'ఇంకా ఆథెంటికేటర్ యాప్ లేదా? సమయ ఆధారిత ఆథెంటికేటర్ యాప్‌ను ఇన్‌స్టాల్ చేసి, ఈ కోడ్‌ను స్కాన్ చేయండి లేదా కింది సెటప్ కీని నమోదు చేయండి.',
+  authQrLabel: 'KukkuOne Admin ను మీ ఆథెంటికేటర్ యాప్‌కు జోడించే QR కోడ్',
+  authCantScan: 'స్కాన్ చేయలేకపోతున్నారా? బదులుగా కీ నమోదు చేయండి',
+  authCantAccess: 'మీ ఆథెంటికేటర్ అందుబాటులో లేదా?',
+  authCantAccessBody:
+    'ఆథెంటికేటర్ సెటప్ మొదటి సైన్ ఇన్‌లో మాత్రమే వస్తుంది. మీది పోగొట్టుకుంటే, దాన్ని రీసెట్ చేయమని ప్లాట్‌ఫామ్ యజమానిని అడగండి. ఈ దశను దాటవేయలేరు.',
+  authCode: '6 అంకెల కోడ్',
+  authCodeInvalid: 'మీ ఆథెంటికేటర్ యాప్‌లోని 6 అంకెల కోడ్ నమోదు చేయండి',
+  authVerify: 'ధృవీకరించి సైన్ ఇన్ చేయండి',
+  authSessionEnded: 'మీ సెషన్ ముగిసింది. కొనసాగడానికి మళ్ళీ సైన్ ఇన్ చేయండి.',
+  authErrors: {
+    AUTH_INVALID: 'ఈమెయిల్ లేదా పాస్‌వర్డ్ సరిగా లేదు.',
+    ACCOUNT_LOCKED: 'చాలా సార్లు తప్పు ప్రయత్నాలు. 15 నిమిషాల తర్వాత మళ్ళీ ప్రయత్నించండి.',
+    RATE_LIMITED: 'చాలా ప్రయత్నాలు. కాసేపు ఆగి మళ్ళీ ప్రయత్నించండి.',
+    CHALLENGE_EXPIRED: 'ఆ సైన్ ఇన్ గడువు ముగిసింది. మళ్ళీ మొదలుపెట్టండి.',
+    TOTP_INVALID: 'ఆ కోడ్ సరైనది కాదు.',
+    CODE_REUSED: 'ఆ కోడ్ ఇప్పటికే వాడబడింది. తదుపరి కోడ్ కోసం ఆగండి.',
+    PASSWORD_WEAK: 'కనీసం 12 అక్షరాలు వాడండి',
+  },
+  authFailed: 'అది జరగలేదు. కాసేపట్లో మళ్ళీ ప్రయత్నించండి.',
+
+  pwTitle: 'మీ పాస్‌వర్డ్ పెట్టుకోండి',
+  pwChecking: 'మీ లింక్‌ను తనిఖీ చేస్తున్నాం…',
+  pwExpiredTitle: 'ఈ లింక్ గడువు ముగిసింది',
+  pwExpiredLead: 'లింక్‌లు ఒక్కసారే పనిచేస్తాయి, 48 గంటలు ఉంటాయి. కొత్తది అడగండి, మేము ఈమెయిల్ చేస్తాం.',
+  pwEmailNew: 'కొత్త లింక్ ఈమెయిల్ చేయండి',
+  pwDoneTitle: 'పాస్‌వర్డ్ పెట్టబడింది',
+  pwDoneLead: (email, welcome) =>
+    `${email}, మీ కొత్త పాస్‌వర్డ్‌తో సైన్ ఇన్ చేయండి.${welcome ? ' తర్వాత ఆథెంటికేటర్ యాప్‌ను సెటప్ చేస్తారు.' : ''}`,
+  pwGoSignIn: 'సైన్ ఇన్‌కు వెళ్ళండి',
+  pwWelcomeTitle: 'KukkuOne అడ్మిన్‌కు స్వాగతం',
+  pwResetTitle: 'కొత్త పాస్‌వర్డ్ పెట్టుకోండి',
+  pwLead: (email) => `${email} కోసం. కనీసం 12 అక్షరాలు వాడండి; కొన్ని పదాలు కలిపి రాస్తే బాగుంటుంది.`,
+  pwNew: 'కొత్త పాస్‌వర్డ్',
+  pwAgain: 'మళ్ళీ టైప్ చేయండి',
+  pwMin: 'కనీసం 12 అక్షరాలు వాడండి',
+  pwMax: 'గరిష్ఠంగా 200 అక్షరాలు వాడండి',
+  pwMismatch: 'పాస్‌వర్డ్‌లు సరిపోలడం లేదు',
+  pwSubmit: 'పాస్‌వర్డ్ పెట్టండి',
+
+  fpTitle: 'పాస్‌వర్డ్ పెట్టుకోండి లేదా రీసెట్ చేయండి',
+  fpLead: 'మీ ఆఫీసు ఈమెయిల్ నమోదు చేయండి, మేము లింక్ పంపుతాం.',
+  fpSubmit: 'లింక్ ఈమెయిల్ చేయండి',
+  fpBack: 'సైన్ ఇన్‌కు తిరిగి వెళ్ళండి',
+  fpSentTitle: 'మీ ఈమెయిల్ చూడండి',
+  fpSentLead: (email) =>
+    `${email} కు KukkuOne అడ్మిన్ ఖాతా ఉంటే, పాస్‌వర్డ్ పెట్టుకునే లింక్ వస్తోంది. అది ఒక్కసారే పనిచేస్తుంది, 48 గంటలు ఉంటుంది.`,
+};
