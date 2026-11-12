@@ -1,0 +1,83 @@
+/** Market rates, partner orders and the audit log. */
+export const en = {
+  // ---- market rates ----
+  rateSub: 'Published by trading partners. The console only reads them.',
+  rateBroiler: 'Broiler rate (per kg live)',
+  rateChick: 'Chick rate (per chick)',
+  rateRegion: 'Region',
+  rateAllRegions: 'All regions',
+  ratePeriod: 'Period',
+  rateLastDays: (n: string) => `Last ${n} days`,
+  rateNoBroiler: 'No broiler rate published in this period',
+  rateNoChick: 'No chick rate published in this period',
+  ratePerKg: 'Rate / kg',
+  rateRate: 'Rate',
+  rateSource: 'Source',
+
+  // ---- partner orders ----
+  orderAllStatuses: 'All statuses',
+  orderNoMatch: 'No order in this status — clear the filter',
+  orderNone: 'No partner orders yet',
+  orderPlaced: 'Placed',
+  orderPartner: 'Partner',
+  orderWhat: 'What',
+  orderChicks: 'Chicks',
+  orderFeed: 'Feed',
+  orderQty: 'Qty',
+  orderChicksUnit: 'chicks',
+  orderBagsUnit: 'bags',
+  orderUnitPrice: 'Unit price',
+  orderNeedBy: 'Need by',
+  orderDelivered: 'Delivered',
+  orderDeliveredLine: (date: string, received: string, dead: number) =>
+    `${date} · ${received} received${dead ? `, ${dead.toLocaleString('en-IN')} dead` : ''}`,
+
+  // ---- audit ----
+  auditResource: 'Resource',
+  auditResourcePlaceholder: 'Resource, e.g. batch…',
+  auditEmpty: 'No recorded activity',
+  auditWhen: 'When',
+  auditActor: 'Actor',
+  auditAction: 'Action',
+  auditChange: 'Change',
+};
+
+export const te: typeof en = {
+  rateSub: 'ట్రేడింగ్ పార్ట్‌నర్లు ప్రకటిస్తారు. కన్సోల్ వాటిని చదువుతుంది మాత్రమే.',
+  rateBroiler: 'బ్రాయిలర్ ధర (బతికిన కోడి, కిలోకు)',
+  rateChick: 'పిల్ల ధర (ఒక్కో పిల్లకు)',
+  rateRegion: 'ప్రాంతం',
+  rateAllRegions: 'అన్ని ప్రాంతాలు',
+  ratePeriod: 'కాలం',
+  rateLastDays: (n) => `గత ${n} రోజులు`,
+  rateNoBroiler: 'ఈ కాలంలో బ్రాయిలర్ ధర ప్రకటించలేదు',
+  rateNoChick: 'ఈ కాలంలో పిల్ల ధర ప్రకటించలేదు',
+  ratePerKg: 'కిలో ధర',
+  rateRate: 'ధర',
+  rateSource: 'మూలం',
+
+  orderAllStatuses: 'అన్ని స్థితులు',
+  orderNoMatch: 'ఈ స్థితిలో ఆర్డర్ లేదు — ఫిల్టర్ తీసివేయండి',
+  orderNone: 'ఇంకా భాగస్వామి ఆర్డర్లు లేవు',
+  orderPlaced: 'ఆర్డర్ తేదీ',
+  orderPartner: 'భాగస్వామి',
+  orderWhat: 'ఏమిటి',
+  orderChicks: 'కోడిపిల్లలు',
+  orderFeed: 'దాణా',
+  orderQty: 'పరిమాణం',
+  orderChicksUnit: 'పిల్లలు',
+  orderBagsUnit: 'బస్తాలు',
+  orderUnitPrice: 'ఒక్కదాని ధర',
+  orderNeedBy: 'ఎప్పటికి కావాలి',
+  orderDelivered: 'అందినవి',
+  orderDeliveredLine: (date, received, dead) =>
+    `${date} · ${received} అందాయి${dead ? `, ${dead.toLocaleString('en-IN')} చనిపోయాయి` : ''}`,
+
+  auditResource: 'రిసోర్స్',
+  auditResourcePlaceholder: 'రిసోర్స్, ఉదా. batch…',
+  auditEmpty: 'నమోదైన కార్యకలాపాలు లేవు',
+  auditWhen: 'ఎప్పుడు',
+  auditActor: 'ఎవరు',
+  auditAction: 'చర్య',
+  auditChange: 'మార్పు',
+};

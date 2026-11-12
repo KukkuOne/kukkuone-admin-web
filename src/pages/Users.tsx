@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { Alert, App, Button, Card, Descriptions, Drawer, Input, Space, Table, Tabs, Tag, Typography } from 'antd';
 import { Link } from 'react-router-dom';
 import AuditTable, { type AuditRow } from '../components/AuditTable';
+import { label, useT } from '../i18n';
 import { api } from '../lib/api';
 import { useAuth } from '../lib/auth';
 import { capColor, date, dateTime, userStatusColor, who } from '../lib/format';
@@ -32,13 +33,14 @@ interface UserDetail {
 
 function StatusAction({ user }: { user: UserDetail }) {
   const { modal, message } = App.useApp();
+  const t = useT();
   const { email } = useAuth();
   const qc = useQueryClient();
   const suspend = user.status === 'active' || user.status === 'invited';
   const mutation = useMutation({
     mutationFn: () => api.post<{ status: string }>(`/admin/users/${user.id}/status`, { status: suspend ? 'suspended' : 'active' }),
     onSuccess: (r) => {
-      message.success(`${who(user)} is now ${r.status}`);
+      message.success(t.userNowStatus(who(user), label(t.userStatus, r.status)));
       qc.invalidateQueries({ queryKey: ['user', user.id] });
       qc.invalidateQueries({ queryKey: ['users'] });
     },
@@ -54,22 +56,21 @@ function StatusAction({ user }: { user: UserDetail }) {
       loading={mutation.isPending}
       onClick={() =>
         modal.confirm({
-          title: suspend ? `Suspend ${who(user)}?` : `Reactivate ${who(user)}?`,
-          content: suspend
-            ? 'Mobile-number sessions stop on their next request and they cannot sign in again until reactivated. Google sign-in does not check this status yet. Recorded in the audit log.'
-            : 'They can sign in again with their mobile number. Recorded in the audit log.',
-          okText: suspend ? 'Suspend' : 'Reactivate',
+          title: suspend ? t.userSuspendQ(who(user)) : t.userReactivateQ(who(user)),
+          content: suspend ? t.userSuspendBody : t.userReactivateBody,
+          okText: suspend ? t.userSuspend : t.userReactivate,
           okButtonProps: { danger: suspend },
           onOk: () => mutation.mutateAsync(),
         })
       }
     >
-      {suspend ? 'Suspend…' : 'Reactivate…'}
+      {suspend ? t.userSuspendEllipsis : t.userReactivateEllipsis}
     </Button>
   );
 }
 
 export default function Users() {
+  const t = useT();
   const [search, setSearch] = useParam('q');
   const [openId, setOpenId] = useParam('user');
   const { data, isLoading, error } = useQuery({
@@ -85,11 +86,11 @@ export default function Users() {
 
   return (
     <Card
-      title={<h1 style={{ fontSize: 16, margin: 0 }}>Users</h1>}
+      title={<h1 style={{ fontSize: 16, margin: 0 }}>{t.navUsers}</h1>}
       extra={
         <Input.Search
-          placeholder="Name, email or mobile…"
-          aria-label="Search users"
+          placeholder={t.userSearchPlaceholder}
+          aria-label={t.userSearchLabel}
           allowClear
           spellCheck={false}
           defaultValue={search}
@@ -104,10 +105,10 @@ export default function Users() {
         loading={isLoading}
         dataSource={data ?? []}
         scroll={{ x: 'max-content' }}
-        locale={{ emptyText: search ? 'No user matches — clear the search' : 'No users yet' }}
+        locale={{ emptyText: search ? t.userNoMatch : t.userNone }}
         columns={[
           {
-            title: 'Person',
+            title: t.colPerson,
             key: 'who',
             render: (_, u) => (
               <a
@@ -121,10 +122,10 @@ export default function Users() {
               </a>
             ),
           },
-          { title: 'Email', dataIndex: 'email', render: (v: string | null) => v ?? '—' },
-          { title: 'Mobile', dataIndex: 'phone', render: (v: string | null) => <span translate="no">{v ?? '—'}</span> },
+          { title: t.colEmail, dataIndex: 'email', render: (v: string | null) => v ?? '—' },
+          { title: t.colMobile, dataIndex: 'phone', render: (v: string | null) => <span translate="no">{v ?? '—'}</span> },
           {
-            title: 'Sign-in',
+            title: t.userSignIn,
             dataIndex: 'providers',
             render: (ps: string[]) => (
               <Space size={4}>
@@ -135,11 +136,11 @@ export default function Users() {
             ),
           },
           {
-            title: 'Memberships',
+            title: t.userMemberships,
             dataIndex: 'memberships',
             render: (ms: UserRow['memberships']) =>
               ms.length === 0 ? (
-                <Typography.Text type="secondary">none</Typography.Text>
+                <Typography.Text type="secondary">{t.userNoMemberships}</Typography.Text>
               ) : (
                 <Space size={4} wrap>
                   {ms.map((m, i) => (
@@ -150,13 +151,13 @@ export default function Users() {
                 </Space>
               ),
           },
-          { title: 'Status', dataIndex: 'status', render: (s: string) => <Tag color={userStatusColor(s)}>{s}</Tag> },
-          { title: 'Created', dataIndex: 'createdAt', render: (dt: string) => date(dt) },
+          { title: t.colStatus, dataIndex: 'status', render: (s: string) => <Tag color={userStatusColor(s)}>{label(t.userStatus, s)}</Tag> },
+          { title: t.colCreated, dataIndex: 'createdAt', render: (dt: string) => date(dt) },
         ]}
       />
 
       <Drawer
-        title={d ? who(d) : 'User'}
+        title={d ? who(d) : t.userDrawerFallback}
         width={720}
         open={!!openId}
         onClose={() => setOpenId(undefined)}
@@ -168,12 +169,12 @@ export default function Users() {
         {d && (
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
             <Descriptions size="small" column={2} bordered>
-              <Descriptions.Item label="Status">
-                <Tag color={userStatusColor(d.status)}>{d.status}</Tag>
+              <Descriptions.Item label={t.colStatus}>
+                <Tag color={userStatusColor(d.status)}>{label(t.userStatus, d.status)}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Created">{date(d.createdAt)}</Descriptions.Item>
-              <Descriptions.Item label="Email">{d.email ?? '—'}</Descriptions.Item>
-              <Descriptions.Item label="Mobile">
+              <Descriptions.Item label={t.colCreated}>{date(d.createdAt)}</Descriptions.Item>
+              <Descriptions.Item label={t.colEmail}>{d.email ?? '—'}</Descriptions.Item>
+              <Descriptions.Item label={t.colMobile}>
                 <span translate="no">{d.phone ?? '—'}</span>
               </Descriptions.Item>
             </Descriptions>
@@ -181,10 +182,10 @@ export default function Users() {
               items={[
                 {
                   key: 'roles',
-                  label: `Roles (${d.memberships.length})`,
+                  label: t.count(t.userRoles, d.memberships.length),
                   children:
                     d.memberships.length === 0 ? (
-                      <Typography.Text type="secondary">Not a member of any organization.</Typography.Text>
+                      <Typography.Text type="secondary">{t.userNotAMember}</Typography.Text>
                     ) : (
                       <Space direction="vertical" size={12} style={{ width: '100%' }}>
                         {d.memberships.map((m) => (
@@ -194,15 +195,15 @@ export default function Users() {
                             title={
                               <Space wrap>
                                 <Link to={`/organizations?org=${m.orgId}`}>{m.org}</Link>
-                                <Tag color={capColor(m.capability)} translate="no">
-                                  {m.capability}
+                                <Tag color={capColor(m.capability)}>
+                                  {label(t.capability, m.capability)}
                                 </Tag>
                                 <span>{m.role}</span>
                               </Space>
                             }
                           >
                             {m.permissions.length === 0 ? (
-                              <Typography.Text type="secondary">No permissions on this role.</Typography.Text>
+                              <Typography.Text type="secondary">{t.userNoPermissions}</Typography.Text>
                             ) : (
                               <Space size={4} wrap>
                                 {m.permissions.map((p) => (
@@ -219,23 +220,23 @@ export default function Users() {
                 },
                 {
                   key: 'identities',
-                  label: 'Sign-in identities',
+                  label: t.userIdentities,
                   children: (
                     <Table
                       rowKey={(i) => `${i.provider}-${i.createdAt}`}
                       size="small"
                       pagination={false}
                       dataSource={d.identities}
-                      locale={{ emptyText: 'Signs in by mobile number only' }}
+                      locale={{ emptyText: t.userPhoneOnly }}
                       columns={[
-                        { title: 'Provider', dataIndex: 'provider' },
-                        { title: 'Email', dataIndex: 'email', render: (v: string | null) => v ?? '—' },
-                        { title: 'Linked', dataIndex: 'createdAt', render: (v: string) => dateTime(v) },
+                        { title: t.userProvider, dataIndex: 'provider', render: (p: string) => <span translate="no">{p}</span> },
+                        { title: t.colEmail, dataIndex: 'email', render: (v: string | null) => v ?? '—' },
+                        { title: t.userLinked, dataIndex: 'createdAt', render: (v: string) => dateTime(v) },
                       ]}
                     />
                   ),
                 },
-                { key: 'activity', label: 'Activity', children: <AuditTable rows={d.activity} showOrg /> },
+                { key: 'activity', label: t.colActivity, children: <AuditTable rows={d.activity} showOrg /> },
               ]}
             />
           </Space>

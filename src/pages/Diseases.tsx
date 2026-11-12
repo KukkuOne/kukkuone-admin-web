@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Card, Input, Table, Tag, Typography } from 'antd';
+import { useLang } from '../i18n';
 import { api } from '../lib/api';
 import { date } from '../lib/format';
 import { useParam } from '../lib/useParam';
@@ -16,6 +17,9 @@ interface Disease {
 
 /** The catalogue vets diagnose against. Read-only: entries come from the vet-sourced seed, never from this console. */
 export default function Diseases() {
+  const { t, lang } = useLang();
+  // In Telugu the name is the Telugu one where the seed carries it; the other column shows the other language.
+  const te = lang === 'te';
   const [q, setQ] = useParam('q');
   const { data, isLoading, error } = useQuery({ queryKey: ['diseases'], queryFn: () => api.get<Disease[]>('/admin/diseases') });
   const needle = q?.toLowerCase();
@@ -25,11 +29,11 @@ export default function Diseases() {
 
   return (
     <Card
-      title={<h1 style={{ fontSize: 16, margin: 0 }}>Disease catalogue</h1>}
+      title={<h1 style={{ fontSize: 16, margin: 0 }}>{t.navDiseases}</h1>}
       extra={
         <Input.Search
-          placeholder="Name or code…"
-          aria-label="Search diseases"
+          placeholder={t.disSearchPlaceholder}
+          aria-label={t.disSearchLabel}
           allowClear
           spellCheck={false}
           defaultValue={q}
@@ -39,7 +43,7 @@ export default function Diseases() {
       }
     >
       <Typography.Paragraph type="secondary">
-        Read-only. Entries are added through the vet-reviewed seed, not here.
+        {t.disReadOnly}
       </Typography.Paragraph>
       {error && <Alert type="error" message={(error as Error).message} showIcon style={{ marginBottom: 16 }} />}
       <Table
@@ -47,22 +51,26 @@ export default function Diseases() {
         loading={isLoading}
         dataSource={rows}
         scroll={{ x: 'max-content' }}
-        locale={{ emptyText: q ? 'Nothing matches — clear the search' : 'The catalogue is empty — run the disease seed' }}
+        locale={{ emptyText: q ? t.disNoMatch : t.disEmpty }}
         columns={[
-          { title: 'Code', dataIndex: 'code', render: (c: string) => <Typography.Text code translate="no">{c}</Typography.Text> },
-          { title: 'Name', dataIndex: 'name' },
-          { title: 'Telugu', dataIndex: 'nameTe', render: (v: string | null) => <span lang="te">{v ?? '—'}</span> },
-          { title: 'Notifiable', dataIndex: 'notifiable', render: (n: boolean) => (n ? <Tag color="red">Notifiable</Tag> : '—') },
+          { title: t.disCode, dataIndex: 'code', render: (c: string) => <Typography.Text code translate="no">{c}</Typography.Text> },
+          { title: t.colName, key: 'name', render: (_, d: Disease) => (te ? <span lang="te">{d.nameTe ?? d.name}</span> : d.name) },
           {
-            title: 'Summary',
+            title: t.disOtherName,
+            key: 'other',
+            render: (_, d: Disease) => (te ? <span lang="en">{d.name}</span> : <span lang="te">{d.nameTe ?? '—'}</span>),
+          },
+          { title: t.disNotifiable, dataIndex: 'notifiable', render: (n: boolean) => (n ? <Tag color="red">{t.disNotifiable}</Tag> : '—') },
+          {
+            title: t.disSummary,
             dataIndex: 'summary',
             render: (s: string | null) => (
-              <Typography.Paragraph style={{ maxWidth: 480, margin: 0 }} ellipsis={{ rows: 2, expandable: true, symbol: 'more' }}>
+              <Typography.Paragraph style={{ maxWidth: 480, margin: 0 }} ellipsis={{ rows: 2, expandable: true, symbol: t.more }}>
                 {s ?? '—'}
               </Typography.Paragraph>
             ),
           },
-          { title: 'Updated', dataIndex: 'updatedAt', render: (d: string) => date(d) },
+          { title: t.disUpdated, dataIndex: 'updatedAt', render: (d: string) => date(d) },
         ]}
       />
     </Card>

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Card, Input, Select, Space } from 'antd';
 import AuditTable, { type AuditRow } from '../components/AuditTable';
+import { useT } from '../i18n';
 import { api } from '../lib/api';
 import { useParam } from '../lib/useParam';
 
@@ -11,6 +12,7 @@ interface OrgOption {
 
 /** The latest 200 audit rows across the platform, narrowed by organization or resource. */
 export default function Audit() {
+  const t = useT();
   const [orgId, setOrgId] = useParam('org');
   const [resource, setResource] = useParam('resource');
   const orgs = useQuery({ queryKey: ['organizations', undefined], queryFn: () => api.get<OrgOption[]>('/admin/organizations') });
@@ -22,23 +24,23 @@ export default function Audit() {
 
   return (
     <Card
-      title={<h1 style={{ fontSize: 16, margin: 0 }}>Audit log</h1>}
+      title={<h1 style={{ fontSize: 16, margin: 0 }}>{t.navAudit}</h1>}
       extra={
         <Space wrap>
           <Select
-            aria-label="Organization"
+            aria-label={t.colOrg}
             allowClear
             showSearch
             optionFilterProp="label"
-            placeholder="All organizations"
+            placeholder={t.allOrgs}
             style={{ width: 220 }}
             value={orgId}
             onChange={(v) => setOrgId(v)}
             options={(orgs.data ?? []).map((o) => ({ value: o.id, label: o.name }))}
           />
           <Input.Search
-            aria-label="Resource"
-            placeholder="Resource, e.g. batch…"
+            aria-label={t.auditResource}
+            placeholder={t.auditResourcePlaceholder}
             allowClear
             spellCheck={false}
             defaultValue={resource}
