@@ -8,6 +8,11 @@ import Login from './pages/Login';
 import Organizations from './pages/Organizations';
 import Reports from './pages/Reports';
 import Users from './pages/Users';
+import Audit from './pages/Audit';
+import Diseases from './pages/Diseases';
+import MarketRates from './pages/MarketRates';
+import Orders from './pages/Orders';
+import Vets from './pages/Vets';
 
 export default function App() {
   const { email } = useAuth();
@@ -23,6 +28,11 @@ export default function App() {
         <Route path="/farms" element={<Farms />} />
         <Route path="/batches" element={<Batches />} />
         <Route path="/users" element={<Users />} />
+        <Route path="/vets" element={<Vets />} />
+        <Route path="/diseases" element={<Diseases />} />
+        <Route path="/market-rates" element={<MarketRates />} />
+        <Route path="/orders" element={<Orders />} />
+        <Route path="/audit" element={<Audit />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AppLayout>

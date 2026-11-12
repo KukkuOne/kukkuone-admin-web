@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Card, Col, Descriptions, Drawer, Row, Select, Statistic, Table, Tag } from 'antd';
-import { useState } from 'react';
 import { api } from '../lib/api';
+import { useParam } from '../lib/useParam';
 import { batchColor, date, kg, money } from '../lib/format';
 
 interface BatchRow {
@@ -54,12 +54,14 @@ const STATUSES = [
 ];
 
 export default function Batches() {
-  const [status, setStatus] = useState<string | undefined>();
-  const [openId, setOpenId] = useState<string | null>(null);
+  const [status, setStatus] = useParam('status');
+  const [orgId, setOrgId] = useParam('org');
+  const [openId, setOpenId] = useParam('batch');
+  const qs = new URLSearchParams({ ...(status ? { status } : {}), ...(orgId ? { orgId } : {}) }).toString();
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ['batches', status],
-    queryFn: () => api.get<BatchRow[]>(`/admin/batches${status ? `?status=${status}` : ''}`),
+    queryKey: ['batches', status, orgId],
+    queryFn: () => api.get<BatchRow[]>(`/admin/batches${qs ? `?${qs}` : ''}`),
   });
 
   const detail = useQuery({
@@ -72,6 +74,12 @@ export default function Batches() {
     <Card
       title="Batches"
       extra={
+        <span style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+        {orgId && (
+          <Tag closable onClose={() => setOrgId(undefined)} closeIcon={<span aria-label="Show all organizations">×</span>}>
+            {data?.[0]?.org ?? 'One organization'}
+          </Tag>
+        )}
         <Select
           allowClear
           placeholder="Filter by status"
@@ -80,6 +88,7 @@ export default function Batches() {
           onChange={setStatus}
           options={STATUSES.map((s) => ({ value: s, label: s }))}
         />
+        </span>
       }
     >
       {error && <Alert type="error" message={(error as Error).message} showIcon style={{ marginBottom: 16 }} />}
@@ -105,7 +114,7 @@ export default function Batches() {
         title={detail.data ? `${detail.data.breed} · ${detail.data.farm}` : 'Batch'}
         width={640}
         open={!!openId}
-        onClose={() => setOpenId(null)}
+        onClose={() => setOpenId(undefined)}
         loading={detail.isLoading}
       >
         {detail.data && (
