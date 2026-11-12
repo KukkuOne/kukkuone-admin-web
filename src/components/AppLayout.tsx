@@ -7,15 +7,17 @@ import {
   EnvironmentOutlined,
   LineChartOutlined,
   LogoutOutlined,
+  StopOutlined,
   MedicineBoxOutlined,
   ReadOutlined,
   ShoppingCartOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
-import { Avatar, Dropdown, Layout, Menu, Tag, Typography } from 'antd';
+import { App, Avatar, Dropdown, Layout, Menu, Tag, Typography } from 'antd';
 import { useEffect, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { LangSwitch, useT } from '../i18n';
+import { authApi } from '../lib/api';
 import { useAuth } from '../lib/auth';
 
 const { Sider, Header, Content } = Layout;
@@ -38,6 +40,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
   const { email, logout } = useAuth();
   const t = useT();
+  const { message } = App.useApp();
   const current = NAV.find((n) => n.key === location.pathname) ?? NAV[0];
   const selected = current.key;
 
@@ -93,7 +96,16 @@ export default function AppLayout({ children }: { children: ReactNode }) {
             <Tag color="volcano">{t.superAdmin}</Tag>
             <Dropdown
               menu={{
-                items: [{ key: 'logout', icon: <LogoutOutlined />, label: t.signOut, onClick: logout }],
+                items: [
+                  { key: 'logout', icon: <LogoutOutlined />, label: t.signOut, onClick: logout },
+                  {
+                    key: 'logout-all',
+                    icon: <StopOutlined />,
+                    label: t.signOutEverywhere,
+                    onClick: () =>
+                      authApi.logoutAll().then(logout, (e) => message.error((e as Error).message)),
+                  },
+                ],
               }}
             >
               <div

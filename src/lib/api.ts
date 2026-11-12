@@ -53,6 +53,8 @@ export const authApi = {
       `/admin/auth/password/token?token=${encodeURIComponent(token)}`,
     ),
   setPassword: (token: string, password: string) => open.post<void>('/admin/auth/password/set', { token, password }),
+  /** Needs the admin session, and ends it with every other one. */
+  logoutAll: () => api.post<void>('/admin/auth/logout-all'),
 };
 
 /** The gateway's error code, for looking up a localised message. */

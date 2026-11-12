@@ -26,7 +26,7 @@ export const en = {
   authCantScan: 'Can’t scan? Enter a key instead',
   authCantAccess: 'Can’t access your authenticator?',
   authCantAccessBody:
-    'Authenticator setup is offered on first sign-in only. If you’ve lost access to yours, ask the platform owner to reset it. This step can’t be skipped.',
+    'Authenticator setup is offered on first sign-in only. If you’ve lost access to yours, another admin can reset it from Users, or the platform owner can run pnpm admin:reset-authenticator. You’ll scan a new QR code at your next sign-in. This step can’t be skipped.',
   authCode: '6-digit code',
   authCodeInvalid: 'Enter the 6-digit code from your authenticator app',
   authVerify: 'Verify and sign in',
@@ -93,7 +93,7 @@ export const te: typeof en = {
   authCantScan: 'స్కాన్ చేయలేకపోతున్నారా? బదులుగా కీ నమోదు చేయండి',
   authCantAccess: 'మీ ఆథెంటికేటర్ అందుబాటులో లేదా?',
   authCantAccessBody:
-    'ఆథెంటికేటర్ సెటప్ మొదటి సైన్ ఇన్‌లో మాత్రమే వస్తుంది. మీది పోగొట్టుకుంటే, దాన్ని రీసెట్ చేయమని ప్లాట్‌ఫామ్ యజమానిని అడగండి. ఈ దశను దాటవేయలేరు.',
+    'ఆథెంటికేటర్ సెటప్ మొదటి సైన్ ఇన్‌లో మాత్రమే వస్తుంది. మీది పోగొట్టుకుంటే, మరో అడ్మిన్ యూజర్ల పేజీ నుండి దాన్ని రీసెట్ చేయగలరు, లేదా ప్లాట్‌ఫామ్ యజమాని pnpm admin:reset-authenticator నడపగలరు. తదుపరి సైన్ ఇన్‌లో కొత్త QR కోడ్‌ను స్కాన్ చేస్తారు. ఈ దశను దాటవేయలేరు.',
   authCode: '6 అంకెల కోడ్',
   authCodeInvalid: 'మీ ఆథెంటికేటర్ యాప్‌లోని 6 అంకెల కోడ్ నమోదు చేయండి',
   authVerify: 'ధృవీకరించి సైన్ ఇన్ చేయండి',
