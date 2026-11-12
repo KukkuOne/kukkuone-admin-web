@@ -17,6 +17,7 @@ import {
   XAxis,
   YAxis,
 } from 'recharts';
+import { label, useT } from '../i18n';
 import { api } from '../lib/api';
 import { batchColor, capColor, money } from '../lib/format';
 
@@ -37,6 +38,7 @@ function statusHex(status: string): string {
 
 interface StatusDatum {
   status: string;
+  label: string;
   count: number;
 }
 
@@ -130,7 +132,8 @@ function toCsv(headers: string[], rows: (string | number)[][]): string {
 }
 
 function downloadCsv(filename: string, csv: string): void {
-  const blob = new Blob([csv], { type: 'text/csv' });
+  // The BOM tells Excel the file is UTF-8, without which Telugu headers arrive as mojibake.
+  const blob = new Blob(['\uFEFF', csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
@@ -142,6 +145,7 @@ function downloadCsv(filename: string, csv: string): void {
 }
 
 export default function Reports() {
+  const t = useT();
   const [status, setStatus] = useState<string | undefined>();
   const [orgId, setOrgId] = useState<string | undefined>();
   const [range, setRange] = useState<[Dayjs | null, Dayjs | null] | null>(null);
@@ -182,8 +186,8 @@ export default function Reports() {
     for (const row of batchData) {
       counts.set(row.status, (counts.get(row.status) ?? 0) + 1);
     }
-    return Array.from(counts, ([status, count]) => ({ status, count }));
-  }, [batchData]);
+    return Array.from(counts, ([status, count]) => ({ status, label: label(t.batchStatus, status), count }));
+  }, [batchData, t]);
 
   const profitChartData = useMemo<OrgProfitDatum[]>(
     () => financialData.map((r) => ({ org: r.org, profit: r.profitMinor / 100 })),
@@ -202,27 +206,27 @@ export default function Reports() {
 
   const downloadBatches = () => {
     const headers = [
-      'Organization',
-      'Farm',
-      'Shed',
-      'Breed',
-      'Status',
-      'Initial Birds',
-      'Current Birds',
-      'Mortality %',
-      'Expenses (₹)',
-      'Revenue (₹)',
-      'Profit (₹)',
-      'Cost/bird (₹)',
-      'Revenue/bird (₹)',
-      'Profit/bird (₹)',
+      t.colOrg,
+      t.colFarm,
+      t.colShed,
+      t.colBreed,
+      t.colStatus,
+      t.csvInitialBirds,
+      t.csvCurrentBirds,
+      t.batchMortalityPct,
+      t.csvRupees(t.colExpenses),
+      t.csvRupees(t.colRevenue),
+      t.csvRupees(t.colProfit),
+      t.csvRupees(t.repCostPerBird),
+      t.csvRupees(t.csvRevenuePerBird),
+      t.csvRupees(t.repProfitPerBird),
     ];
     const rows = batchData.map((r) => [
       r.org,
       r.farm,
       r.shed,
       r.breed,
-      r.status,
+      label(t.batchStatus, r.status),
       r.initialBirds,
       r.currentBirds,
       r.mortalityPct,
@@ -238,16 +242,16 @@ export default function Reports() {
 
   const downloadFinancials = () => {
     const headers = [
-      'Organization',
-      'Capabilities',
-      'Batches',
-      'Expenses (₹)',
-      'Revenue (₹)',
-      'Profit (₹)',
+      t.colOrg,
+      t.colCapabilities,
+      t.colBatches,
+      t.csvRupees(t.colExpenses),
+      t.csvRupees(t.colRevenue),
+      t.csvRupees(t.colProfit),
     ];
     const rows = financialData.map((r) => [
       r.org,
-      r.capabilities.join('|'),
+      r.capabilities.map((c) => label(t.capability, c)).join('|'),
       r.batches,
       rupees(r.totalExpensesMinor),
       rupees(r.totalRevenueMinor),
@@ -258,21 +262,21 @@ export default function Reports() {
 
   return (
     <Space direction="vertical" size={24} style={{ width: '100%' }}>
-      <Card title="Charts">
+      <Card title={t.repCharts}>
         <Row gutter={[24, 24]}>
           <Col xs={24} md={8}>
             <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 500 }}>
-              Batches by status
+              {t.dashBatchesByStatus}
             </div>
             {batches.isLoading || statusChartData.length === 0 ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No batch data" />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t.repNoBatchData} />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <PieChart>
                   <Pie
                     data={statusChartData}
                     dataKey="count"
-                    nameKey="status"
+                    nameKey="label"
                     innerRadius={50}
                     outerRadius={80}
                   >
@@ -289,10 +293,10 @@ export default function Reports() {
 
           <Col xs={24} md={8}>
             <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 500 }}>
-              Profit by organization
+              {t.repProfitByOrg}
             </div>
             {financials.isLoading || profitChartData.length === 0 ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No financial data" />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t.repNoFinancialData} />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={profitChartData} margin={{ bottom: 40 }}>
@@ -306,7 +310,7 @@ export default function Reports() {
                   />
                   <YAxis />
                   <Tooltip formatter={(value: number) => rupeeLabel(value)} />
-                  <Bar dataKey="profit" name="Profit" fill="#c2410c" />
+                  <Bar dataKey="profit" name={t.colProfit} fill="#c2410c" />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -314,10 +318,10 @@ export default function Reports() {
 
           <Col xs={24} md={8}>
             <div style={{ textAlign: 'center', marginBottom: 8, fontWeight: 500 }}>
-              Expenses vs Revenue by org
+              {t.repExpRevByOrg}
             </div>
             {financials.isLoading || expRevChartData.length === 0 ? (
-              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No financial data" />
+              <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t.repNoFinancialData} />
             ) : (
               <ResponsiveContainer width="100%" height={260}>
                 <BarChart data={expRevChartData} margin={{ bottom: 40 }}>
@@ -332,8 +336,8 @@ export default function Reports() {
                   <YAxis />
                   <Tooltip formatter={(value: number) => rupeeLabel(value)} />
                   <Legend />
-                  <Bar dataKey="expenses" name="Expenses" fill="#ef4444" />
-                  <Bar dataKey="revenue" name="Revenue" fill="#16a34a" />
+                  <Bar dataKey="expenses" name={t.colExpenses} fill="#ef4444" />
+                  <Bar dataKey="revenue" name={t.colRevenue} fill="#16a34a" />
                 </BarChart>
               </ResponsiveContainer>
             )}
@@ -342,29 +346,29 @@ export default function Reports() {
       </Card>
 
       <Card
-        title="Batch performance"
+        title={t.repBatchPerformance}
         extra={
           <Button
             icon={<DownloadOutlined />}
             onClick={downloadBatches}
             disabled={batchData.length === 0}
           >
-            Download CSV
+            {t.repDownloadCsv}
           </Button>
         }
       >
         <Space size={12} wrap style={{ marginBottom: 16 }}>
           <Select
             allowClear
-            placeholder="Filter by status"
+            placeholder={t.filterByStatus}
             style={{ width: 220 }}
             value={status}
             onChange={setStatus}
-            options={STATUSES.map((s) => ({ value: s, label: s }))}
+            options={STATUSES.map((s) => ({ value: s, label: label(t.batchStatus, s) }))}
           />
           <Select
             allowClear
-            placeholder="Filter by organization"
+            placeholder={t.repFilterByOrg}
             style={{ width: 260 }}
             value={orgId}
             onChange={setOrgId}
@@ -390,43 +394,43 @@ export default function Reports() {
           dataSource={batchData}
           scroll={{ x: 'max-content' }}
           columns={[
-            { title: 'Organization', dataIndex: 'org' },
-            { title: 'Farm', dataIndex: 'farm' },
-            { title: 'Breed', dataIndex: 'breed' },
+            { title: t.colOrg, dataIndex: 'org' },
+            { title: t.colFarm, dataIndex: 'farm' },
+            { title: t.colBreed, dataIndex: 'breed' },
             {
-              title: 'Status',
+              title: t.colStatus,
               dataIndex: 'status',
-              render: (s: string) => <Tag color={batchColor(s)}>{s}</Tag>,
+              render: (s: string) => <Tag color={batchColor(s)}>{label(t.batchStatus, s)}</Tag>,
             },
-            { title: 'Initial', dataIndex: 'initialBirds' },
-            { title: 'Current', dataIndex: 'currentBirds' },
+            { title: t.repInitial, dataIndex: 'initialBirds' },
+            { title: t.repCurrent, dataIndex: 'currentBirds' },
             {
-              title: 'Mortality %',
+              title: t.batchMortalityPct,
               dataIndex: 'mortalityPct',
               render: (v: number) => `${v}%`,
             },
             {
-              title: 'Expenses',
+              title: t.colExpenses,
               dataIndex: 'totalExpensesMinor',
               render: (v: number) => money(v),
             },
             {
-              title: 'Revenue',
+              title: t.colRevenue,
               dataIndex: 'totalRevenueMinor',
               render: (v: number) => money(v),
             },
             {
-              title: 'Profit',
+              title: t.colProfit,
               dataIndex: 'profitMinor',
               render: (v: number) => <span style={profitStyle(v)}>{money(v)}</span>,
             },
             {
-              title: 'Cost/bird',
+              title: t.repCostPerBird,
               dataIndex: 'costPerBirdMinor',
               render: (v: number | null) => (v == null ? '—' : money(v)),
             },
             {
-              title: 'Profit/bird',
+              title: t.repProfitPerBird,
               dataIndex: 'profitPerBirdMinor',
               render: (v: number | null) => (v == null ? '—' : money(v)),
             },
@@ -435,14 +439,14 @@ export default function Reports() {
       </Card>
 
       <Card
-        title="Financials by organization"
+        title={t.repFinancialsByOrg}
         extra={
           <Button
             icon={<DownloadOutlined />}
             onClick={downloadFinancials}
             disabled={financialData.length === 0}
           >
-            Download CSV
+            {t.repDownloadCsv}
           </Button>
         }
       >
@@ -460,33 +464,33 @@ export default function Reports() {
           dataSource={financialData}
           scroll={{ x: 'max-content' }}
           columns={[
-            { title: 'Organization', dataIndex: 'org' },
+            { title: t.colOrg, dataIndex: 'org' },
             {
-              title: 'Capabilities',
+              title: t.colCapabilities,
               dataIndex: 'capabilities',
               render: (caps: string[]) => (
                 <Space size={4} wrap>
                   {caps.map((c) => (
                     <Tag key={c} color={capColor(c)}>
-                      {c}
+                      {label(t.capability, c)}
                     </Tag>
                   ))}
                 </Space>
               ),
             },
-            { title: 'Batches', dataIndex: 'batches' },
+            { title: t.colBatches, dataIndex: 'batches' },
             {
-              title: 'Expenses',
+              title: t.colExpenses,
               dataIndex: 'totalExpensesMinor',
               render: (v: number) => money(v),
             },
             {
-              title: 'Revenue',
+              title: t.colRevenue,
               dataIndex: 'totalRevenueMinor',
               render: (v: number) => money(v),
             },
             {
-              title: 'Profit',
+              title: t.colProfit,
               dataIndex: 'profitMinor',
               render: (v: number) => <span style={profitStyle(v)}>{money(v)}</span>,
             },

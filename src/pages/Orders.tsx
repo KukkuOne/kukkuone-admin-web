@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Card, Select, Table, Tag } from 'antd';
 import { Link } from 'react-router-dom';
+import { label, useT } from '../i18n';
 import { api } from '../lib/api';
 import { date, money, NUM } from '../lib/format';
 import { useParam } from '../lib/useParam';
@@ -34,6 +35,7 @@ interface Order {
 
 /** Chick and feed orders farms placed on their trading partners. The partner's cost price is not shown. */
 export default function Orders() {
+  const t = useT();
   const [status, setStatus] = useParam('status');
   const { data, isLoading, error } = useQuery({
     queryKey: ['input-orders', status],
@@ -42,16 +44,16 @@ export default function Orders() {
 
   return (
     <Card
-      title={<h1 style={{ fontSize: 16, margin: 0 }}>Partner orders</h1>}
+      title={<h1 style={{ fontSize: 16, margin: 0 }}>{t.navOrders}</h1>}
       extra={
         <Select
-          aria-label="Status"
+          aria-label={t.colStatus}
           allowClear
-          placeholder="All statuses"
+          placeholder={t.orderAllStatuses}
           style={{ width: 180 }}
           value={status}
           onChange={(v) => setStatus(v)}
-          options={STATUSES.map((s) => ({ value: s, label: s }))}
+          options={STATUSES.map((s) => ({ value: s, label: label(t.orderStatus, s) }))}
         />
       }
     >
@@ -61,32 +63,30 @@ export default function Orders() {
         loading={isLoading}
         dataSource={data ?? []}
         scroll={{ x: 'max-content' }}
-        locale={{ emptyText: status ? 'No order in this status — clear the filter' : 'No partner orders yet' }}
+        locale={{ emptyText: status ? t.orderNoMatch : t.orderNone }}
         columns={[
-          { title: 'Placed', dataIndex: 'createdAt', render: (d: string) => date(d) },
-          { title: 'Farm', key: 'farmer', render: (_, o: Order) => <Link to={`/organizations?org=${o.farmerOrgId}`}>{o.farmer ?? 'Unknown'}</Link> },
-          { title: 'Partner', key: 'partner', render: (_, o: Order) => <Link to={`/organizations?org=${o.partnerOrgId}`}>{o.partner ?? 'Unknown'}</Link> },
+          { title: t.orderPlaced, dataIndex: 'createdAt', render: (d: string) => date(d) },
+          { title: t.colFarm, key: 'farmer', render: (_, o: Order) => <Link to={`/organizations?org=${o.farmerOrgId}`}>{o.farmer ?? t.unknown}</Link> },
+          { title: t.orderPartner, key: 'partner', render: (_, o: Order) => <Link to={`/organizations?org=${o.partnerOrgId}`}>{o.partner ?? t.unknown}</Link> },
           {
-            title: 'What',
+            title: t.orderWhat,
             key: 'what',
-            render: (_, o: Order) => (o.kind === 'CHICK' ? `Chicks${o.hatcheryName ? ` · ${o.hatcheryName}` : ''}` : `Feed${o.feedType ? ` · ${o.feedType}` : ''}`),
+            render: (_, o: Order) => (o.kind === 'CHICK' ? `${t.orderChicks}${o.hatcheryName ? ` · ${o.hatcheryName}` : ''}` : `${t.orderFeed}${o.feedType ? ` · ${o.feedType}` : ''}`),
           },
-          { title: 'Qty', dataIndex: 'qty', align: 'right', render: (n: number, o: Order) => <span style={NUM}>{n.toLocaleString('en-IN')} {o.kind === 'CHICK' ? 'chicks' : 'bags'}</span> },
-          { title: 'Unit price', dataIndex: 'unitPriceMinor', align: 'right', render: (p: number | null) => <span style={NUM}>{money(p)}</span> },
-          { title: 'Need by', dataIndex: 'needBy', render: (d: string | null) => date(d) },
+          { title: t.orderQty, dataIndex: 'qty', align: 'right', render: (n: number, o: Order) => <span style={NUM}>{n.toLocaleString('en-IN')} {o.kind === 'CHICK' ? t.orderChicksUnit : t.orderBagsUnit}</span> },
+          { title: t.orderUnitPrice, dataIndex: 'unitPriceMinor', align: 'right', render: (p: number | null) => <span style={NUM}>{money(p)}</span> },
+          { title: t.orderNeedBy, dataIndex: 'needBy', render: (d: string | null) => date(d) },
           {
-            title: 'Delivered',
+            title: t.orderDelivered,
             dataIndex: 'delivery',
             render: (d: Order['delivery']) =>
               d ? (
-                <span style={NUM}>
-                  {date(d.deliveredOn)} · {d.received.toLocaleString('en-IN')} received{d.dead ? `, ${d.dead} dead` : ''}
-                </span>
+                <span style={NUM}>{t.orderDeliveredLine(date(d.deliveredOn), d.received.toLocaleString('en-IN'), d.dead)}</span>
               ) : (
                 '—'
               ),
           },
-          { title: 'Status', dataIndex: 'status', render: (s: string) => <Tag color={STATUS_COLOR[s] ?? 'default'}>{s}</Tag> },
+          { title: t.colStatus, dataIndex: 'status', render: (s: string) => <Tag color={STATUS_COLOR[s] ?? 'default'}>{label(t.orderStatus, s)}</Tag> },
         ]}
       />
     </Card>

@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Alert, Card, Descriptions, Drawer, Input, Space, Table, Tabs, Tag } from 'antd';
 import { Link } from 'react-router-dom';
 import AuditTable, { type AuditRow } from '../components/AuditTable';
+import { label, useT } from '../i18n';
 import { api } from '../lib/api';
 import { capColor, date, NUM, userStatusColor, who } from '../lib/format';
 import { useParam } from '../lib/useParam';
@@ -41,13 +42,13 @@ interface OrgDetail {
   activity: AuditRow[];
 }
 
-function Caps({ caps }: { caps: string[] }) {
+function Caps({ caps, labels }: { caps: string[]; labels: Record<string, string> }) {
   if (caps.length === 0) return <span>—</span>;
   return (
     <Space size={4} wrap>
       {caps.map((c) => (
-        <Tag key={c} color={capColor(c)} translate="no">
-          {c}
+        <Tag key={c} color={capColor(c)}>
+          {label(labels, c)}
         </Tag>
       ))}
     </Space>
@@ -55,6 +56,7 @@ function Caps({ caps }: { caps: string[] }) {
 }
 
 export default function Organizations() {
+  const t = useT();
   const [search, setSearch] = useParam('q');
   const [openId, setOpenId] = useParam('org');
   const { data, isLoading, error } = useQuery({
@@ -70,11 +72,11 @@ export default function Organizations() {
 
   return (
     <Card
-      title={<h1 style={{ fontSize: 16, margin: 0 }}>Organizations</h1>}
+      title={<h1 style={{ fontSize: 16, margin: 0 }}>{t.navOrgs}</h1>}
       extra={
         <Input.Search
-          placeholder="Search by name…"
-          aria-label="Search organizations"
+          placeholder={t.orgSearchPlaceholder}
+          aria-label={t.orgSearchLabel}
           allowClear
           defaultValue={search}
           onSearch={(v) => setSearch(v.trim() || undefined)}
@@ -88,10 +90,10 @@ export default function Organizations() {
         loading={isLoading}
         dataSource={data ?? []}
         scroll={{ x: 'max-content' }}
-        locale={{ emptyText: search ? 'No organization matches that name — clear the search' : 'No organizations yet' }}
+        locale={{ emptyText: search ? t.orgNoMatch : t.orgNone }}
         columns={[
           {
-            title: 'Name',
+            title: t.colName,
             dataIndex: 'name',
             render: (n: string, r: Org) => (
               <a
@@ -105,18 +107,18 @@ export default function Organizations() {
               </a>
             ),
           },
-          { title: 'Capabilities', dataIndex: 'capabilities', render: (caps: string[]) => <Caps caps={caps} /> },
-          { title: 'Users', dataIndex: 'users', align: 'right', render: (n: number) => <span style={NUM}>{n}</span> },
-          { title: 'Farms', dataIndex: 'farms', align: 'right', render: (n: number) => <span style={NUM}>{n}</span> },
-          { title: 'Batches', dataIndex: 'batches', align: 'right', render: (n: number) => <span style={NUM}>{n}</span> },
-          { title: 'Currency', dataIndex: 'baseCurrency' },
-          { title: 'Status', dataIndex: 'status', render: (s: string) => <Tag color={userStatusColor(s)}>{s}</Tag> },
-          { title: 'Created', dataIndex: 'createdAt', render: (dt: string) => date(dt) },
+          { title: t.colCapabilities, dataIndex: 'capabilities', render: (caps: string[]) => <Caps caps={caps} labels={t.capability} /> },
+          { title: t.colUsers, dataIndex: 'users', align: 'right', render: (n: number) => <span style={NUM}>{n}</span> },
+          { title: t.colFarms, dataIndex: 'farms', align: 'right', render: (n: number) => <span style={NUM}>{n}</span> },
+          { title: t.colBatches, dataIndex: 'batches', align: 'right', render: (n: number) => <span style={NUM}>{n}</span> },
+          { title: t.colCurrency, dataIndex: 'baseCurrency' },
+          { title: t.colStatus, dataIndex: 'status', render: (s: string) => <Tag color={userStatusColor(s)}>{label(t.userStatus, s)}</Tag> },
+          { title: t.colCreated, dataIndex: 'createdAt', render: (dt: string) => date(dt) },
         ]}
       />
 
       <Drawer
-        title={d?.name ?? 'Organization'}
+        title={d?.name ?? t.orgDrawerFallback}
         width={720}
         open={!!openId}
         onClose={() => setOpenId(undefined)}
@@ -127,64 +129,64 @@ export default function Organizations() {
         {d && (
           <Space direction="vertical" size={16} style={{ width: '100%' }}>
             <Descriptions size="small" column={2} bordered>
-              <Descriptions.Item label="Status">
-                <Tag color={userStatusColor(d.status)}>{d.status}</Tag>
+              <Descriptions.Item label={t.colStatus}>
+                <Tag color={userStatusColor(d.status)}>{label(t.userStatus, d.status)}</Tag>
               </Descriptions.Item>
-              <Descriptions.Item label="Currency">{d.baseCurrency}</Descriptions.Item>
-              <Descriptions.Item label="Capabilities" span={2}>
-                <Caps caps={d.capabilities} />
+              <Descriptions.Item label={t.colCurrency}>{d.baseCurrency}</Descriptions.Item>
+              <Descriptions.Item label={t.colCapabilities} span={2}>
+                <Caps caps={d.capabilities} labels={t.capability} />
               </Descriptions.Item>
               {d.capabilities.includes('TRADING_PARTNER') && (
-                <Descriptions.Item label="Trading capabilities" span={2}>
-                  <Caps caps={d.tradingCapabilities} />
+                <Descriptions.Item label={t.orgTradingCapabilities} span={2}>
+                  <Caps caps={d.tradingCapabilities} labels={t.tradingCapability} />
                 </Descriptions.Item>
               )}
-              <Descriptions.Item label="Batches">
+              <Descriptions.Item label={t.colBatches}>
                 <Link to={`/batches?org=${d.id}`}>
                   <span style={NUM}>{d.batchCount}</span>
                 </Link>
               </Descriptions.Item>
-              <Descriptions.Item label="Created">{date(d.createdAt)}</Descriptions.Item>
+              <Descriptions.Item label={t.colCreated}>{date(d.createdAt)}</Descriptions.Item>
             </Descriptions>
             <Tabs
               items={[
                 {
                   key: 'members',
-                  label: `Members (${d.members.length})`,
+                  label: t.count(t.orgMembers, d.members.length),
                   children: (
                     <Table
                       rowKey={(m) => `${m.userId}-${m.roleKey}`}
                       size="small"
                       pagination={false}
                       dataSource={d.members}
-                      locale={{ emptyText: 'No members' }}
+                      locale={{ emptyText: t.orgNoMembers }}
                       columns={[
-                        { title: 'Person', key: 'who', render: (_, m) => <Link to={`/users?user=${m.userId}`}>{who(m)}</Link> },
-                        { title: 'Role', dataIndex: 'role' },
-                        { title: 'Capability', dataIndex: 'capability', render: (c: string) => <Tag color={capColor(c)} translate="no">{c}</Tag> },
-                        { title: 'Status', dataIndex: 'status', render: (s: string) => <Tag color={userStatusColor(s)}>{s}</Tag> },
+                        { title: t.colPerson, key: 'who', render: (_, m) => <Link to={`/users?user=${m.userId}`}>{who(m)}</Link> },
+                        { title: t.colRole, dataIndex: 'role' },
+                        { title: t.colCapability, dataIndex: 'capability', render: (c: string) => <Tag color={capColor(c)}>{label(t.capability, c)}</Tag> },
+                        { title: t.colStatus, dataIndex: 'status', render: (s: string) => <Tag color={userStatusColor(s)}>{label(t.userStatus, s)}</Tag> },
                       ]}
                     />
                   ),
                 },
                 {
                   key: 'farms',
-                  label: `Farms (${d.farms.length})`,
+                  label: t.count(t.colFarms, d.farms.length),
                   children: (
                     <Table
                       rowKey="id"
                       size="small"
                       pagination={false}
                       dataSource={d.farms}
-                      locale={{ emptyText: 'No farms' }}
+                      locale={{ emptyText: t.orgNoFarms }}
                       columns={[
-                        { title: 'Farm', dataIndex: 'name' },
-                        { title: 'Location', dataIndex: 'location', render: (l: string | null) => l ?? '—' },
+                        { title: t.colFarm, dataIndex: 'name' },
+                        { title: t.colLocation, dataIndex: 'location', render: (l: string | null) => l ?? '—' },
                       ]}
                     />
                   ),
                 },
-                { key: 'activity', label: 'Activity', children: <AuditTable rows={d.activity} /> },
+                { key: 'activity', label: t.colActivity, children: <AuditTable rows={d.activity} /> },
               ]}
             />
           </Space>

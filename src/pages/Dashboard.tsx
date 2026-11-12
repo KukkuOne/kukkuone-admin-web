@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { Alert, Card, Col, Row, Spin, Statistic, Table, Tag } from 'antd';
+import { label, useT } from '../i18n';
 import { api } from '../lib/api';
 import { batchColor, date } from '../lib/format';
 
@@ -19,20 +20,21 @@ interface Overview {
 }
 
 export default function Dashboard() {
+  const t = useT();
   const { data, isLoading, error } = useQuery({
     queryKey: ['overview'],
     queryFn: () => api.get<Overview>('/admin/overview'),
   });
 
-  if (error) return <Alert type="error" message="Failed to load" description={(error as Error).message} showIcon />;
+  if (error) return <Alert type="error" message={t.loadFailed} description={(error as Error).message} showIcon />;
   if (isLoading || !data) return <Spin size="large" style={{ display: 'block', marginTop: 80 }} />;
 
   const stats = [
-    { title: 'Organizations', value: data.counts.organizations },
-    { title: 'Users', value: data.counts.users },
-    { title: 'Farms', value: data.counts.farms },
-    { title: 'Sheds', value: data.counts.sheds },
-    { title: 'Batches', value: data.counts.batches },
+    { title: t.navOrgs, value: data.counts.organizations },
+    { title: t.colUsers, value: data.counts.users },
+    { title: t.colFarms, value: data.counts.farms },
+    { title: t.colSheds, value: data.counts.sheds },
+    { title: t.colBatches, value: data.counts.batches },
   ];
 
   return (
@@ -47,32 +49,32 @@ export default function Dashboard() {
         ))}
       </Row>
 
-      <Card title="Batches by status" size="small">
+      <Card title={t.dashBatchesByStatus} size="small">
         {Object.keys(data.batchStatusCounts).length === 0 ? (
-          <span style={{ color: '#999' }}>No batches yet</span>
+          <span style={{ color: '#999' }}>{t.dashNoBatches}</span>
         ) : (
           Object.entries(data.batchStatusCounts).map(([status, count]) => (
             <Tag key={status} color={batchColor(status)} style={{ marginBottom: 8 }}>
-              {status}: {count}
+              {t.dashStatusCount(label(t.batchStatus, status), count)}
             </Tag>
           ))
         )}
       </Card>
 
-      <Card title="Recent batches" size="small">
+      <Card title={t.dashRecentBatches} size="small">
         <Table
           rowKey="id"
           size="small"
           pagination={false}
           dataSource={data.recentBatches}
           columns={[
-            { title: 'Organization', dataIndex: 'org' },
-            { title: 'Farm', dataIndex: 'farm' },
-            { title: 'Shed', dataIndex: 'shed' },
-            { title: 'Breed', dataIndex: 'breed' },
-            { title: 'Birds', dataIndex: 'initialBirds' },
-            { title: 'Status', dataIndex: 'status', render: (s: string) => <Tag color={batchColor(s)}>{s}</Tag> },
-            { title: 'Created', dataIndex: 'createdAt', render: (d: string) => date(d) },
+            { title: t.colOrg, dataIndex: 'org' },
+            { title: t.colFarm, dataIndex: 'farm' },
+            { title: t.colShed, dataIndex: 'shed' },
+            { title: t.colBreed, dataIndex: 'breed' },
+            { title: t.colBirds, dataIndex: 'initialBirds' },
+            { title: t.colStatus, dataIndex: 'status', render: (s: string) => <Tag color={batchColor(s)}>{label(t.batchStatus, s)}</Tag> },
+            { title: t.colCreated, dataIndex: 'createdAt', render: (d: string) => date(d) },
           ]}
         />
       </Card>
