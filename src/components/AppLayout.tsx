@@ -1,15 +1,20 @@
 import {
   AppstoreOutlined,
+  AuditOutlined,
   BankOutlined,
   BarChartOutlined,
   DashboardOutlined,
   EnvironmentOutlined,
+  LineChartOutlined,
   LogoutOutlined,
+  MedicineBoxOutlined,
+  ReadOutlined,
+  ShoppingCartOutlined,
   TeamOutlined,
 } from '@ant-design/icons';
 import { Avatar, Dropdown, Layout, Menu, Tag, Typography } from 'antd';
-import type { ReactNode } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, type ReactNode } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
 
 const { Sider, Header, Content } = Layout;
@@ -21,13 +26,22 @@ const NAV = [
   { key: '/farms', icon: <EnvironmentOutlined />, label: 'Farms' },
   { key: '/batches', icon: <AppstoreOutlined />, label: 'Batches' },
   { key: '/users', icon: <TeamOutlined />, label: 'Users' },
+  { key: '/vets', icon: <MedicineBoxOutlined />, label: 'Vets' },
+  { key: '/diseases', icon: <ReadOutlined />, label: 'Disease catalogue' },
+  { key: '/market-rates', icon: <LineChartOutlined />, label: 'Market rates' },
+  { key: '/orders', icon: <ShoppingCartOutlined />, label: 'Partner orders' },
+  { key: '/audit', icon: <AuditOutlined />, label: 'Audit log' },
 ];
 
 export default function AppLayout({ children }: { children: ReactNode }) {
   const location = useLocation();
-  const navigate = useNavigate();
   const { email, logout } = useAuth();
-  const selected = NAV.find((n) => n.key === location.pathname)?.key ?? '/';
+  const current = NAV.find((n) => n.key === location.pathname) ?? NAV[0];
+  const selected = current.key;
+
+  useEffect(() => {
+    document.title = `${current.label} · KukkuOne Admin`;
+  }, [current.label]);
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
@@ -53,8 +67,7 @@ export default function AppLayout({ children }: { children: ReactNode }) {
           theme="dark"
           mode="inline"
           selectedKeys={[selected]}
-          items={NAV}
-          onClick={({ key }) => navigate(key)}
+          items={NAV.map((n) => ({ ...n, label: <Link to={n.key}>{n.label}</Link> }))}
         />
       </Sider>
       <Layout>

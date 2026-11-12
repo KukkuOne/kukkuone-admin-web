@@ -39,3 +39,16 @@ const CAP_COLORS: Record<string, string> = { FARMER: 'green', DISTRIBUTOR: 'blue
 export function capColor(cap: string): string {
   return CAP_COLORS[cap] ?? 'default';
 }
+
+/** A person's label: name, else email, else mobile number. */
+export function who(u: { displayName?: string | null; email?: string | null; phone?: string | null }): string {
+  return u.displayName || u.email || u.phone || '—';
+}
+
+/** Figures that are compared down a column line up digit for digit. */
+export const NUM = { fontVariantNumeric: 'tabular-nums' } as const;
+
+const USER_STATUS: Record<string, string> = { active: 'green', invited: 'blue', suspended: 'red', closed: 'default' };
+export function userStatusColor(s: string): string {
+  return USER_STATUS[s] ?? 'default';
+}
