@@ -4,6 +4,7 @@ import enUS from 'antd/locale/en_US';
 import dayjs from 'dayjs';
 import 'dayjs/locale/te';
 import { createContext, useContext, useMemo, useState, type ReactNode } from 'react';
+import * as auth from './auth';
 import * as common from './common';
 import * as health from './health';
 import * as people from './people';
@@ -17,10 +18,10 @@ import * as trade from './trade';
  * different arguments — fails `tsc` rather than showing English.
  *
  * Keys are prefixed by area (`org…`, `user…`, `vet…`, `dis…`, `rate…`,
- * `order…`, `audit…`, `rep…`) so the spreads below cannot shadow one another.
+ * `order…`, `audit…`, `rep…`, `auth…`, `pw…`, `fp…`) so the spreads below cannot shadow one another.
  */
-const EN = { ...common.en, ...people.en, ...health.en, ...trade.en, ...reports.en };
-const TE: typeof EN = { ...common.te, ...people.te, ...health.te, ...trade.te, ...reports.te };
+const EN = { ...common.en, ...auth.en, ...people.en, ...health.en, ...trade.en, ...reports.en };
+const TE: typeof EN = { ...common.te, ...auth.te, ...people.te, ...health.te, ...trade.te, ...reports.te };
 
 export type Strings = typeof EN;
 export type Lang = 'en' | 'te';
