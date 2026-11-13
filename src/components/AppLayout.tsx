@@ -1,5 +1,6 @@
 import {
   AppstoreOutlined,
+  AlertOutlined,
   AuditOutlined,
   BankOutlined,
   BarChartOutlined,
@@ -31,6 +32,7 @@ const NAV = [
   { key: '/users', icon: <TeamOutlined />, label: 'navUsers' },
   { key: '/vets', icon: <MedicineBoxOutlined />, label: 'navVets' },
   { key: '/diseases', icon: <ReadOutlined />, label: 'navDiseases' },
+  { key: '/alert-thresholds', icon: <AlertOutlined />, label: 'navThresholds' },
   { key: '/market-rates', icon: <LineChartOutlined />, label: 'navRates' },
   { key: '/orders', icon: <ShoppingCartOutlined />, label: 'navOrders' },
   { key: '/audit', icon: <AuditOutlined />, label: 'navAudit' },

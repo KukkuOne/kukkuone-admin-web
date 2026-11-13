@@ -8,6 +8,7 @@ import Organizations from './pages/Organizations';
 import Reports from './pages/Reports';
 import Users from './pages/Users';
 import Audit from './pages/Audit';
+import AlertThresholds from './pages/AlertThresholds';
 import Diseases from './pages/Diseases';
 import MarketRates from './pages/MarketRates';
 import Orders from './pages/Orders';
@@ -42,6 +43,7 @@ function Console() {
         <Route path="/users" element={<Users />} />
         <Route path="/vets" element={<Vets />} />
         <Route path="/diseases" element={<Diseases />} />
+        <Route path="/alert-thresholds" element={<AlertThresholds />} />
         <Route path="/market-rates" element={<MarketRates />} />
         <Route path="/orders" element={<Orders />} />
         <Route path="/audit" element={<Audit />} />

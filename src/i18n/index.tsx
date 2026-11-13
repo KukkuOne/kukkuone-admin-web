@@ -9,6 +9,7 @@ import * as common from './common';
 import * as health from './health';
 import * as people from './people';
 import * as reports from './reports';
+import * as thresholds from './thresholds';
 import * as trade from './trade';
 
 /**
@@ -18,10 +19,10 @@ import * as trade from './trade';
  * different arguments — fails `tsc` rather than showing English.
  *
  * Keys are prefixed by area (`org…`, `user…`, `vet…`, `dis…`, `rate…`,
- * `order…`, `audit…`, `rep…`, `auth…`, `pw…`, `fp…`) so the spreads below cannot shadow one another.
+ * `order…`, `audit…`, `rep…`, `auth…`, `pw…`, `fp…`, `thr…`) so the spreads below cannot shadow one another.
  */
-const EN = { ...common.en, ...auth.en, ...people.en, ...health.en, ...trade.en, ...reports.en };
-const TE: typeof EN = { ...common.te, ...auth.te, ...people.te, ...health.te, ...trade.te, ...reports.te };
+const EN = { ...common.en, ...auth.en, ...people.en, ...health.en, ...trade.en, ...reports.en, ...thresholds.en };
+const TE: typeof EN = { ...common.te, ...auth.te, ...people.te, ...health.te, ...trade.te, ...reports.te, ...thresholds.te };
 
 export type Strings = typeof EN;
 export type Lang = 'en' | 'te';
